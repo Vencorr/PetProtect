@@ -1,0 +1,4 @@
+name: PetProtect
+version: ${project.version}
+main: petprotect.petprotect.PetProtect
+api-version: 1.13
