@@ -1,4 +1,4 @@
-package me.vencorr.petprotect;
+package me.vencorr;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
