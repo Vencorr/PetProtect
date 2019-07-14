@@ -1,4 +1,4 @@
 name: PetProtect
 version: ${project.version}
 main: me.vencorr.PetProtect
-api-version: 1.13
+api-version: 1.14

@@ -1,31 +1,35 @@
 package me.vencorr;
 
+import me.vencorr.PetProtect;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.inventory.AbstractHorseInventory;
+import org.bukkit.inventory.HorseInventory;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.projectiles.ProjectileSource;
-import net.coreprotect.CoreProtect;
-import net.coreprotect.CoreProtect.*;
-import net.coreprotect.CoreProtectAPI;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.*;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Fire;
-import org.bukkit.entity.EntityType;
-
-import java.util.List;
 import java.util.Objects;
 
 public class EventListener implements Listener {
 
+    PetProtect pp;
+
+    // Define Plugin
+    public EventListener(PetProtect plugin) {
+        this.pp = plugin;
+    }
+
+    // Handle entity hurt
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Tameable) {
+            String message = pp.hurtmessage;
             Player player = null;
             Projectile projectile = null;
             if (event.getDamager() instanceof Player) {
@@ -36,19 +40,29 @@ public class EventListener implements Listener {
             }
 
             Tameable pet = (Tameable) event.getEntity();
+            if (pet.getOwner().getName() == null) {
+                message = message.replace("{player}", "Unknown Player");
+            } else {
+                message = message.replace("{player}", pet.getOwner().getName());
+            }
             if (pet.isTamed() && (player != null || projectile != null)) {
                 if (projectile != null) {
                     ProjectileSource projsrc = projectile.getShooter();
-                    if (projsrc != pet.getOwner() && !projectile.hasPermission("petprotect.petkill")) {
+                    if (projsrc != pet.getOwner() && !projectile.hasPermission("petprotect.hurt")) {
                         event.setCancelled(true);
                         event.setDamage(0);
+                        if (projsrc instanceof Player) {
+                            Bukkit.getConsoleSender().sendMessage(pet.getOwner().getName());
+                            ((Player) projsrc).sendMessage(message);
+                        }
                     }
                 }
-                if (player != null && !player.hasPermission("petprotect.petkill")) {
+                if (player != null && !player.hasPermission("petprotect.hurt")) {
                     if (pet.getOwner() != player) {
                         if (!Objects.equals(pet.getOwner(), player)){
                             event.setCancelled(true);
                             event.setDamage(0);
+                            player.sendMessage(message);
                         }
                     }
                 }
@@ -56,60 +70,46 @@ public class EventListener implements Listener {
         }
     }
 
-    // Handle rides.
+    // Handle entity ride
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         Entity ride = event.getVehicle();
         if (ride instanceof Tameable && event.getEntered() instanceof Player) {
+            String message = pp.ridemessage;
             Player player = (Player)event.getEntered();
             Tameable pet = (Tameable) ride;
             if (pet.isTamed()) {
-                if (!Objects.equals(pet.getOwner(), player) && pet.getOwner() != null) {
+                if (pet.getOwner().getName() == null) {
+                    message = message.replace("{player}", "Unknown Player");
+                } else {
+                    message = message.replace("{player}", pet.getOwner().getName());
+                }
+                if (!Objects.equals(pet.getOwner(), player) && pet.getOwner() != null && !player.hasPermission("petprotect.ride")) {
                     event.setCancelled(true);
-                    pet.removePassenger(event.getEntered());
-                    player.leaveVehicle();
+                    player.sendMessage(message);
                 }
             }
         }
     }
 
-    /* @EventHandler
-    public void onEntityDamageByBlock(EntityDamageByBlockEvent event) {
-        CoreProtectAPI CoreProtect = getCoreProtect();
-        if (CoreProtect != null){
-            Block bloc = event.getDamager();
-            if (event.getEntity() instanceof Tameable) {
-                Tameable pet = (Tameable) event.getEntity();
-                List<String[]> blocheck = CoreProtect.blockLookup(bloc, 5);
-                Player play = null;
-                if (blocheck != null && pet.isTamed()) {
-                    for (String[] result : blocheck) {
-                        CoreProtectAPI.ParseResult parseResult = CoreProtect.parseResult(result);
-                        play = Bukkit.getPlayerExact(parseResult.getPlayer());
-                    }
-                    if (bloc != null && !Objects.equals(pet.getOwner(), play)) {
-                        bloc.setType(Material.AIR);
-                        event.setCancelled(true);
-                        event.setDamage(0);
-                    }
+    // Handle horse inventory access
+    @EventHandler
+    public void onInventoryOpenEvent(InventoryOpenEvent event) {
+        if (event.getInventory() instanceof HorseInventory || event.getInventory() instanceof AbstractHorseInventory || event.getInventory() instanceof ChestedHorse) {
+            String message = pp.accessmessage;
+            Inventory inv = event.getInventory();
+            if (inv.getHolder() instanceof Tameable) {
+                Tameable tamed = (Tameable) inv.getHolder();
+                if (tamed.getOwner().getName() == null) {
+                    message = message.replace("{player}", "Unknown Player");
+                } else {
+                    message = message.replace("{player}", tamed.getOwner().getName());
+                }
+                if (tamed.isTamed() && event.getPlayer() != tamed.getOwner() && !event.getPlayer().hasPermission("petprotect.access")) {
+                    event.getPlayer().sendMessage(message);
+                    event.setCancelled(true);
                 }
             }
-
         }
     }
-
-    private CoreProtectAPI getCoreProtect() {
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("CoreProtect");
-        if (plugin == null || !(plugin instanceof CoreProtect)) {
-            return null;
-        }
-        CoreProtectAPI CoreProtect = ((CoreProtect) plugin).getAPI();
-        if (CoreProtect.isEnabled() == false) {
-            return null;
-        }
-        if (CoreProtect.APIVersion() < 6) {
-            return null;
-        }
-        return CoreProtect;
-    } */
 }

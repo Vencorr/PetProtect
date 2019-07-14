@@ -1,0 +1,11 @@
+# PetProtect
+# 0.0.2
+
+enabled: true
+
+
+# Messages
+# {player} = Player name if available.
+hurt: "You cannot hurt {player}'s pet."
+ride: "You cannot ride {player}'s pet."
+access: "You cannot access {player}'s pet."
