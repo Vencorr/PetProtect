@@ -1,11 +1,23 @@
 # PetProtect
-# 0.0.2
+# 0.2.1
 
 enabled: true
 
 
 # Messages
 # {player} = Player name if available.
-hurt: "You cannot hurt {player}'s pet."
-ride: "You cannot ride {player}'s pet."
-access: "You cannot access {player}'s pet."
+# {pet} = Pet type
+# Example: "This is {player}'s {pet}!"
+# Would output: This is Notch's Wolf!"
+hurt: "You cannot hurt {player}'s {pet}."
+ride: "You cannot ride {player}'s {pet}."
+access: "You cannot access {player}'s {pet}."
+
+# Pet Names
+wolf: dog
+cat: cat
+horse: horse
+donkey: donkey
+parrot: parrot
+mule: mule
+llama: llama

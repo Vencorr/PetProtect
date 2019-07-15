@@ -1,24 +1,50 @@
 package me.vencorr;
 
-import me.vencorr.PetProtect;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.AbstractHorseInventory;
 import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.projectiles.ProjectileSource;
+
 import java.util.Objects;
 
 public class EventListener implements Listener {
 
     PetProtect pp;
+
+    public String GetPet(Entity entity) {
+        if (entity instanceof Cat) {
+            return pp.config.getString("cat");
+        } else if (entity instanceof Wolf) {
+            return pp.config.getString("wolf");
+        } else if (entity instanceof Horse) {
+            return pp.config.getString("horse");
+        } else if (entity instanceof Parrot) {
+            return pp.config.getString("parrot");
+        } else if (entity instanceof Donkey) {
+            return pp.config.getString("donkey");
+        } else if (entity instanceof Mule) {
+            return pp.config.getString("mule");
+        } else if (entity instanceof Llama) {
+            return pp.config.getString("llama");
+        } else {
+            return "pet";
+        }
+    }
+
+    public String GetOwner(Tameable pet) {
+        if (pet.getOwner().getName() == null) {
+            return "{player}";
+        } else {
+            return pet.getOwner().getName();
+        }
+    }
 
     // Define Plugin
     public EventListener(PetProtect plugin) {
@@ -40,11 +66,6 @@ public class EventListener implements Listener {
             }
 
             Tameable pet = (Tameable) event.getEntity();
-            if (pet.getOwner().getName() == null) {
-                message = message.replace("{player}", "Unknown Player");
-            } else {
-                message = message.replace("{player}", pet.getOwner().getName());
-            }
             if (pet.isTamed() && (player != null || projectile != null)) {
                 if (projectile != null) {
                     ProjectileSource projsrc = projectile.getShooter();
@@ -52,8 +73,7 @@ public class EventListener implements Listener {
                         event.setCancelled(true);
                         event.setDamage(0);
                         if (projsrc instanceof Player) {
-                            Bukkit.getConsoleSender().sendMessage(pet.getOwner().getName());
-                            ((Player) projsrc).sendMessage(message);
+                            ((Player) projsrc).sendMessage(message.replace("{player}",GetOwner(pet)).replace("{pet}",GetPet(pet)));
                         }
                     }
                 }
@@ -62,7 +82,7 @@ public class EventListener implements Listener {
                         if (!Objects.equals(pet.getOwner(), player)){
                             event.setCancelled(true);
                             event.setDamage(0);
-                            player.sendMessage(message);
+                            player.sendMessage(message.replace("{player}",GetOwner(pet)).replace("{pet}",GetPet(pet)));
                         }
                     }
                 }
@@ -86,7 +106,7 @@ public class EventListener implements Listener {
                 }
                 if (!Objects.equals(pet.getOwner(), player) && pet.getOwner() != null && !player.hasPermission("petprotect.ride")) {
                     event.setCancelled(true);
-                    player.sendMessage(message);
+                    player.sendMessage(message.replace("{player}",GetOwner(pet)).replace("{pet}",GetPet(pet)));
                 }
             }
         }
@@ -106,7 +126,7 @@ public class EventListener implements Listener {
                     message = message.replace("{player}", tamed.getOwner().getName());
                 }
                 if (tamed.isTamed() && event.getPlayer() != tamed.getOwner() && !event.getPlayer().hasPermission("petprotect.access")) {
-                    event.getPlayer().sendMessage(message);
+                    event.getPlayer().sendMessage(message.replace("{player}",GetOwner(tamed)).replace("{pet}",GetPet(tamed)));
                     event.setCancelled(true);
                 }
             }
