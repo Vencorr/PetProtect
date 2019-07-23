@@ -1,23 +1,11 @@
 # PetProtect
-# 0.2.1
+# 0.2.3
 
 enabled: true
 
+# Whether or not skeleton horses should be protected by
+# Setting this to true will protect all skeleton horses from death, but not from riding or accessing.
+protect-skeleton-horses: true
 
-# Messages
-# {player} = Player name if available.
-# {pet} = Pet type
-# Example: "This is {player}'s {pet}!"
-# Would output: This is Notch's Wolf!"
-hurt: "You cannot hurt {player}'s {pet}."
-ride: "You cannot ride {player}'s {pet}."
-access: "You cannot access {player}'s {pet}."
-
-# Pet Names
-wolf: dog
-cat: cat
-horse: horse
-donkey: donkey
-parrot: parrot
-mule: mule
-llama: llama
+# Logs all interactions with skeleton horses.
+log-skeleton-horses: true
