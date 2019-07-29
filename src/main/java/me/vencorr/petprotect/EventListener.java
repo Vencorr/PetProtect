@@ -1,8 +1,7 @@
-package me.vencorr;
+package me.vencorr.petprotect;
 
-import org.bukkit.Bukkit;
+import me.vencorr.petprotect.util.ActionBar;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,41 +12,35 @@ import org.bukkit.inventory.AbstractHorseInventory;
 import org.bukkit.inventory.HorseInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
 
 import java.io.IOException;
 import java.util.Objects;
 
 public class EventListener implements Listener {
 
-    PetProtect pp;
+    Main pp;
 
-    void SendMessage(Tameable pet, Entity player) {
+    void SendMessage(Tameable pet, Player player) {
         String petName = "pet";
         String ownerName = null;
-        if (pet.getCustomName() != null) {
-            petName = "\"" + pet.getCustomName() + "\"";
-        } else {
-            petName = pet.getName();
-        }
+        petName = pet.getName();
         if (pet.getOwner() != null) {
             if (pet.getOwner().getName() != null) {
                 ownerName = pet.getOwner().getName();
             }
         }
-        String msg;
-        if (pet.getCustomName() == null && ownerName != null) {
-            player.sendMessage(ChatColor.RED + "That " + ChatColor.AQUA + petName + ChatColor.RED + " is " + ownerName + "'s");
-        } else if (pet.getCustomName() != null && ownerName != null) {
-            player.sendMessage(ChatColor.AQUA + petName + ChatColor.RED + " is " + ownerName + "'s");
-        } else if (pet.getCustomName() == null && ownerName == null) {
-            player.sendMessage(ChatColor.RED + "That isn't your " + petName);
-        } else if (pet.getCustomName() != null && ownerName == null) {
-            player.sendMessage(ChatColor.RED + "That " + ChatColor.AQUA + petName + ChatColor.RED + " isn't yours");
+        String msg = ChatColor.DARK_RED + "Message Error";
+        if (ownerName != null) {
+            msg = ChatColor.translateAlternateColorCodes('&', "That is &o" + ownerName + "'s&r " + petName);
+        } else if (ownerName == null) {
+            msg = "That isn't your " + petName;
         }
+        ActionBar.sendActionBar(player, msg);
     }
 
     // Define Plugin
-    EventListener(PetProtect plugin) {
+    EventListener(Main plugin) {
         this.pp = plugin;
     }
 
@@ -69,10 +62,10 @@ public class EventListener implements Listener {
                 if (projectile != null) {
                     ProjectileSource projsrc = projectile.getShooter();
                     if (projsrc != pet.getOwner() && !projectile.hasPermission("petprotect.hurt")) {
-                        event.setCancelled(true);
-                        projectile.setGravity(false);
-                        event.setDamage(0);
                         if (projsrc instanceof Player) {
+                            event.setCancelled(true);
+                            projectile.setVelocity(new Vector(projectile.getVelocity().getX(), 5f, projectile.getVelocity().getZ()));
+                            event.setDamage(0);
                             SendMessage(pet,(Player)projsrc);
                         }
                     }
@@ -125,7 +118,7 @@ public class EventListener implements Listener {
                         e.printStackTrace();
                     }
                 } else if (tamed.isTamed() && event.getPlayer() != tamed.getOwner() && !event.getPlayer().hasPermission("petprotect.access")) {
-                    SendMessage(tamed,event.getPlayer());
+                    SendMessage(tamed,(Player)event.getPlayer());
                     event.setCancelled(true);
                 }
             }
