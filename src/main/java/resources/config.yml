@@ -5,7 +5,5 @@ enabled: true
 
 # Whether or not skeleton horses should be protected by
 # Setting this to true will protect all skeleton horses from death, but not from riding or accessing.
+# Riding or accessing is logged in console.
 protect-skeleton-horses: true
-
-# Logs all interactions with skeleton horses.
-log-skeleton-horses: true

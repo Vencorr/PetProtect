@@ -1,6 +1,7 @@
 package me.vencorr.petprotect;
 
 import me.vencorr.petprotect.util.ActionBar;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -14,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
 
-import java.io.IOException;
 import java.util.Objects;
 
 public class EventListener implements Listener {
@@ -94,12 +94,8 @@ public class EventListener implements Listener {
                     SendMessage(pet,player);
                 }
             }
-            if (pet instanceof SkeletonHorse && pp.skeletonLog) {
-                try {
-                    pp.SkeletonLog(player, pet, pet.getLocation(), "ride");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (pet instanceof SkeletonHorse) {
+                Bukkit.getConsoleSender().sendMessage("Skeleton Horse (" + pet.getUniqueId().toString() + ") at " + pet.getLocation().getX() + ", " + pet.getLocation().getY() + ", " + pet.getLocation().getZ() + " was mounted by " + player.getName());
             }
         }
     }
@@ -110,15 +106,12 @@ public class EventListener implements Listener {
         if (event.getInventory() instanceof HorseInventory || event.getInventory() instanceof AbstractHorseInventory || event.getInventory() instanceof ChestedHorse) {
             Inventory inv = event.getInventory();
             if (inv.getHolder() instanceof Tameable) {
-                Tameable tamed = (Tameable) inv.getHolder();
-                if (tamed instanceof SkeletonHorse && pp.skeletonLog) {
-                    try {
-                        pp.SkeletonLog((Player)event.getPlayer(), tamed, tamed.getLocation(), "access");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else if (tamed.isTamed() && event.getPlayer() != tamed.getOwner() && !event.getPlayer().hasPermission("petprotect.access")) {
-                    SendMessage(tamed,(Player)event.getPlayer());
+                Tameable pet = (Tameable) inv.getHolder();
+                Player player = (Player) event.getPlayer();
+                if (pet instanceof SkeletonHorse) {
+                    Bukkit.getConsoleSender().sendMessage("Skeleton Horse (" + pet.getUniqueId().toString() + ") at " + pet.getLocation().getX() + ", " + pet.getLocation().getY() + ", " + pet.getLocation().getZ() + " was accessed by " + player.getName());
+                } else if (pet.isTamed() && event.getPlayer() != pet.getOwner() && !event.getPlayer().hasPermission("petprotect.access")) {
+                    SendMessage(pet,(Player)event.getPlayer());
                     event.setCancelled(true);
                 }
             }
