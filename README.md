@@ -1,18 +1,46 @@
 # PetProtect
-PP is a really simple plugin which helps protect user pets from being killed, stolen, or items taken away by evil doers. Denying access to hurting, riding, or accessing chests from pets that aren't from the owners unless with the proper permissions, PetProtect is a simple solution to a chaotic wrongdoing.
+PetProtect is a small plugin that attempts to negate the issue of malicious players killing pets. It's purpose is to protect the pets from being stolen, accessed, and killed by players other than the owner. Supporting any tameable mob, players will be unable to hurt, leash, ride, access, or shoot any pet they do not own.
+
+## Compiling and Building
+This project uses maven, so building is as easy as any other maven project. Java 8 is required.
+https://github.com/Vencorr/PetProtect
+```
+git clone https://github.com/Vencorr/PetProtect.git
+cd PetProtect
+mvn install
+```
+
+The compiled jar is available in the target folder.
 
 ## Permissions
 PetProtect uses 3 permissions to control certain actions.
+
+
 `petprotect.hurt` controls hitting another pet. Setting to true will allow the user to hurt any pet.
-`petprotect.ride` controls riding pets such as horses or donkys. Setting to true will allow the user to ride any pet.
-`petprotect.access` controls accessing chests and inventory of pets. Setting to true will allow the user to take or give anything from any pets inventory.
+
+`petprotect.ride` controls riding pets such as horses or donkeys. Setting to true will allow the user to ride any pet.
+
+`petprotect.access` controls accessing pets. Setting to true will allow the user to take or give anything from any pets inventory and leash them.
 
 ## Config.yml
+A configurable file is available in the PetProtect directory in the plugins folder.
+
+
 `enabled` - On/Off switch for the plugin.
-The tag '{player}' is used to display the playername.
-The tag '{pet}' is used to display the pet type.
-Example: `'No, that is {player}'s! Not your {pet}!'` turns into 'No, that is Notch's! Not your dog!'
-`hurt` - Hurt message to display to player if no permissions.
-`ride` - Ride message to display to player if no permissions.
-`access` - Access message to display to player if no permissions.
-The rest are mob names. If you wish to name some mobs differently, the option is available.
+
+`actionbar` - Whether to use Actionbar text over chat messages.
+
+### Protection
+
+`hurt` - Protect against hurt attempts.
+`ride` - Protect against ride attempts.
+`access` - Protect against access attempts.
+
+### Messages
+Tags are {pet} and {owner}. Color codes are supported.
+
+`message` - Message to send on any interaction.
+
+`altmessage` - Message to send on any interaction if the owner is not found. Using '{owner}' could cause a NullPointerException.
+
+`customname` - Whether to allow pet custom names in message or use the entity name.
