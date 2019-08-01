@@ -6,7 +6,7 @@
 
     <groupId>Vencorr</groupId>
     <artifactId>PetProtect</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>https://github.com/Vencorr/PetProtect
     <packaging>jar</packaging>
 
     <name>PetProtect</name>
