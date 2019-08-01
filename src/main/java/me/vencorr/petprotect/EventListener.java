@@ -7,7 +7,9 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.AbstractHorseInventory;
 import org.bukkit.inventory.HorseInventory;
@@ -19,24 +21,34 @@ import java.util.Objects;
 
 public class EventListener implements Listener {
 
-    Main pp;
+    private Main pp;
 
-    void SendMessage(Tameable pet, Player player) {
-        String petName = "pet";
+    // Send Message
+    private void SendMessage(Tameable pet, Player player) {
+        String petName;
         String ownerName = null;
-        petName = pet.getName();
+        if (pp.customname) {
+            petName = pet.getName();
+        } else {
+            petName = pet.getType().name();
+        }
         if (pet.getOwner() != null) {
             if (pet.getOwner().getName() != null) {
                 ownerName = pet.getOwner().getName();
             }
         }
-        String msg = ChatColor.DARK_RED + "Message Error";
+        String msg;
         if (ownerName != null) {
-            msg = ChatColor.translateAlternateColorCodes('&', "That is &o" + ownerName + "'s&r " + petName);
-        } else if (ownerName == null) {
-            msg = "That isn't your " + petName;
+            msg = ChatColor.translateAlternateColorCodes('&', pp.message.replace("{pet}",petName).replace("{owner}",ownerName));
+        } else {
+            msg = pp.altmessage.replace("{pet}",petName);
         }
-        ActionBar.sendActionBar(player, msg);
+        if (pp.actionbar) {
+            ActionBar.sendActionBar(player, msg);
+        } else {
+            player.sendMessage(msg);
+        }
+
     }
 
     // Define Plugin
@@ -44,10 +56,10 @@ public class EventListener implements Listener {
         this.pp = plugin;
     }
 
-    // Handle entity hurt
+    // Damaging
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getEntity() instanceof Tameable) {
+        if (event.getEntity() instanceof Tameable && pp.hurt) {
             Player player = null;
             Projectile projectile = null;
             if (event.getDamager() instanceof Player) {
@@ -71,21 +83,21 @@ public class EventListener implements Listener {
                     }
                 }
                 if (player != null && !player.hasPermission("petprotect.hurt")) {
-                    if (pet.getOwner() != player) {
+                    if (pet.getOwner() != player && !(pet instanceof Wolf && ((Wolf) pet).isAngry())) {
                         event.setCancelled(true);
                         event.setDamage(0);
-                        SendMessage(pet,player);
+                        SendMessage(pet, player);
                     }
                 }
             }
         }
     }
 
-    // Handle entity ride
+    // Riding
     @EventHandler
     public void onVehicleEnter(VehicleEnterEvent event) {
         Entity ride = event.getVehicle();
-        if (ride instanceof Tameable && event.getEntered() instanceof Player) {
+        if (ride instanceof Tameable && event.getEntered() instanceof Player && pp.ride) {
             Player player = (Player)event.getEntered();
             Tameable pet = (Tameable) ride;
             if (pet.isTamed()) {
@@ -100,10 +112,10 @@ public class EventListener implements Listener {
         }
     }
 
-    // Handle horse inventory access
+    // Inventory Access
     @EventHandler
     public void onInventoryOpenEvent(InventoryOpenEvent event) {
-        if (event.getInventory() instanceof HorseInventory || event.getInventory() instanceof AbstractHorseInventory || event.getInventory() instanceof ChestedHorse) {
+        if ((event.getInventory() instanceof HorseInventory || event.getInventory() instanceof AbstractHorseInventory || event.getInventory() instanceof ChestedHorse) && pp.access) {
             Inventory inv = event.getInventory();
             if (inv.getHolder() instanceof Tameable) {
                 Tameable pet = (Tameable) inv.getHolder();
@@ -114,6 +126,34 @@ public class EventListener implements Listener {
                     SendMessage(pet,(Player)event.getPlayer());
                     event.setCancelled(true);
                 }
+            }
+        }
+    }
+
+    // Right-Clicks
+    @EventHandler
+    public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {
+        if (event.getRightClicked() instanceof Tameable && pp.access) {
+            Tameable pet = (Tameable) event.getRightClicked();
+            Player player = event.getPlayer();
+            if (pet instanceof SkeletonHorse) {
+                Bukkit.getConsoleSender().sendMessage("Skeleton Horse (" + pet.getUniqueId().toString() + ") at " + pet.getLocation().getX() + ", " + pet.getLocation().getY() + ", " + pet.getLocation().getZ() + " was interacted with by " + player.getName());
+            } else if (pet.isTamed() && pet.getOwner() != player && !player.hasPermission("petprotect.access")) {
+                SendMessage(pet,player);
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    // Leash
+    @EventHandler
+    public void onPlayerLeashEntityEvent(PlayerLeashEntityEvent event) {
+        if (event.getEntity() instanceof Tameable && pp.access) {
+            Tameable pet = (Tameable) event.getEntity();
+            Player player = event.getPlayer();
+            if (pet.isTamed() && pet.getOwner() != player && !player.hasPermission("petprotect.access")) {
+                SendMessage(pet,player);
+                event.setCancelled(true);
             }
         }
     }

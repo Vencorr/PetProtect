@@ -10,7 +10,13 @@ public final class Main extends JavaPlugin {
 
     FileConfiguration config = this.getConfig();
     // Plugin Configs
-    public boolean skeletonProtect;
+    boolean actionbar;
+    boolean hurt;
+    boolean ride;
+    boolean access;
+    String message;
+    String altmessage;
+    boolean customname;
 
     @Override
     public void onEnable()
@@ -26,7 +32,16 @@ public final class Main extends JavaPlugin {
             getServer().getConsoleSender().sendMessage("Main disabled in config. Set 'enabled' to true to use Main.");
             getServer().getPluginManager().disablePlugin(this);
         }
-        skeletonProtect = config.getBoolean("protect-skeleton-horses");
+        // Configurations
+        actionbar = config.getBoolean("actionbar");
+        hurt = config.getBoolean("hurt");
+        ride = config.getBoolean("ride");
+        access = config.getBoolean("access");
+        message = config.getString("message");
+        altmessage = config.getString("altmessage");
+        customname = config.getBoolean("customname");
+
+
         getServer().getPluginManager().registerEvents(new EventListener(this), this);
     }
 }
