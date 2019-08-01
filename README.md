@@ -3,7 +3,7 @@ PetProtect is a small plugin that attempts to negate the issue of malicious play
 
 ## Compiling and Building
 This project uses maven, so building is as easy as any other maven project. Java 8 is required.
-https://github.com/Vencorr/PetProtect
+
 ```
 git clone https://github.com/Vencorr/PetProtect.git
 cd PetProtect
@@ -33,7 +33,9 @@ A configurable file is available in the PetProtect directory in the plugins fold
 ### Protection
 
 `hurt` - Protect against hurt attempts.
+
 `ride` - Protect against ride attempts.
+
 `access` - Protect against access attempts.
 
 ### Messages
