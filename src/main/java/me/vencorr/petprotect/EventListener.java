@@ -85,8 +85,9 @@ public class EventListener implements Listener {
                     }
                 }
                 if (player != null && !player.hasPermission("petprotect.hurt")) {
+                    OfflinePlayer play = (OfflinePlayer)pet.getOwner();
                     if (
-                            pet instanceof SkeletonHorse || (pet.getOwner() != player && !(pet instanceof Wolf && ((Wolf) pet).getTarget() == player) && !((Player) pet.getOwner()).isBanned())
+                            pet instanceof SkeletonHorse || (pet.getOwner() != player && !(pet instanceof Wolf && ((Wolf) pet).getTarget() == player) && !play.isBanned())
                             ) {
                         event.setCancelled(true);
                         event.setDamage(0);
