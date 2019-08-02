@@ -9,6 +9,9 @@ actionbar: true
 # Protections
 # Protect from other players.
 
+# Protect pets completely while player is offline?
+offline-protect: true
+
 # Prevent Hurt
 hurt: true
 

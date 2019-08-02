@@ -11,6 +11,7 @@ public final class Main extends JavaPlugin {
     FileConfiguration config = this.getConfig();
     // Plugin Configs
     boolean actionbar;
+    boolean offlineprotect;
     boolean hurt;
     boolean ride;
     boolean access;
@@ -34,6 +35,7 @@ public final class Main extends JavaPlugin {
         }
         // Configurations
         actionbar = config.getBoolean("actionbar");
+        offlineprotect = config.getBoolean("offline-protect");
         hurt = config.getBoolean("hurt");
         ride = config.getBoolean("ride");
         access = config.getBoolean("access");
