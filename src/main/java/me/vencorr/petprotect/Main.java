@@ -20,8 +20,7 @@ public final class Main extends JavaPlugin {
     boolean customname;
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         ActionBar.plugin = this;
         ActionBar.nmsver = Bukkit.getServer().getClass().getPackage().getName();
         ActionBar.nmsver = ActionBar.nmsver.substring(ActionBar.nmsver.lastIndexOf(".") + 1);
@@ -42,7 +41,6 @@ public final class Main extends JavaPlugin {
         message = config.getString("message");
         altmessage = config.getString("altmessage");
         customname = config.getBoolean("customname");
-
 
         getServer().getPluginManager().registerEvents(new EventListener(this), this);
     }

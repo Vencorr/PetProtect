@@ -138,7 +138,7 @@ public class EventListener implements Listener {
     // Right-Clicks
     @EventHandler
     public void onPlayerInteractAtEntityEvent(PlayerInteractAtEntityEvent event) {
-        if (event.getRightClicked() instanceof Tameable && pp.access) {
+        if (event.getRightClicked() instanceof Tameable && pp.access && !(event.getRightClicked() instanceof SkeletonHorse)) {
             Tameable pet = (Tameable) event.getRightClicked();
             Player player = event.getPlayer();
             if (pet.isTamed() && pet.getOwner() != player && !player.hasPermission("petprotect.access")) {

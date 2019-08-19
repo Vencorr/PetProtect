@@ -1,5 +1,5 @@
 # Main
-# 0.3
+# 0.4
 
 enabled: true
 
@@ -12,13 +12,9 @@ actionbar: true
 # Protect pets completely while player is offline?
 offline-protect: true
 
-# Prevent Hurt
+# Prevents different kinds of interactions
 hurt: true
-
-# Prevent Riding
 ride: true
-
-# Prevent Accessing
 access: true
 
 
@@ -29,7 +25,7 @@ access: true
 message: "&b{pet}&r is owned by &o{owner}"
 
 # Alternative Message if the owner cannot be found
-altmessage: "You cannot hurt &b{pet}"
+altmessage: "&b{pet}&r is protected!"
 
 # Allow showing custom pet names?
 customname: true
