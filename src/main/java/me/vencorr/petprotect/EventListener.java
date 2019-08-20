@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
@@ -21,36 +22,38 @@ import org.bukkit.util.Vector;
 
 import java.util.Objects;
 
+
 public class EventListener implements Listener {
 
     private Main pp;
 
     // Send Message
-    private void SendMessage(Tameable pet, Player player) {
-        String petName;
-        String ownerName = null;
-        if (pp.customname) {
-            petName = pet.getName();
-        } else {
-            petName = pet.getType().name();
-        }
-        if (pet.getOwner() != null) {
-            if (pet.getOwner().getName() != null) {
-                ownerName = pet.getOwner().getName();
+    private void SendMessage(Tameable pet, Player player, boolean isOwner) {
+        if (pp.msgtype != 0) {
+            String petName;
+            String ownerName = null;
+            if (pp.customname) {
+                petName = pet.getName();
+            } else {
+                petName = pet.getType().name();
+            }
+            if (pet.getOwner() != null) {
+                if (pet.getOwner().getName() != null) {
+                    ownerName = pet.getOwner().getName();
+                }
+            }
+            String msg;
+            if (ownerName != null && !isOwner) {
+                msg = ChatColor.translateAlternateColorCodes('&', pp.message.replace("{pet}", petName).replace("{owner}", ownerName));
+            } else {
+                msg = ChatColor.translateAlternateColorCodes('&', pp.altmessage.replace("{pet}", petName));
+            }
+            if (pp.msgtype == 2) {
+                ActionBar.sendActionBar(player, msg);
+            } else {
+                player.sendMessage(msg);
             }
         }
-        String msg;
-        if (ownerName != null) {
-            msg = ChatColor.translateAlternateColorCodes('&', pp.message.replace("{pet}",petName).replace("{owner}",ownerName));
-        } else {
-            msg = pp.altmessage.replace("{pet}",petName);
-        }
-        if (pp.actionbar) {
-            ActionBar.sendActionBar(player, msg);
-        } else {
-            player.sendMessage(msg);
-        }
-
     }
 
     // Define Plugin
@@ -75,23 +78,23 @@ public class EventListener implements Listener {
             if (pet.isTamed() && (player != null || projectile != null)) {
                 if (projectile != null) {
                     ProjectileSource projsrc = projectile.getShooter();
-                    if (projsrc != pet.getOwner() && !projectile.hasPermission("petprotect.hurt")) {
+                    if ((projsrc != pet.getOwner() || pp.ownerprotect) && !projectile.hasPermission("petprotect.hurt")) {
                         if ((projsrc instanceof Player && !((Player)projsrc).isBanned()) || pet instanceof SkeletonHorse) {
                             event.setCancelled(true);
                             projectile.setVelocity(new Vector(projectile.getVelocity().getX(), 5f, projectile.getVelocity().getZ()));
                             event.setDamage(0);
-                            SendMessage(pet,(Player)projsrc);
+                            SendMessage(pet,(Player)projsrc, pet.getOwner() == projsrc);
                         }
                     }
                 }
                 if (player != null && !player.hasPermission("petprotect.hurt")) {
                     OfflinePlayer play = (OfflinePlayer)pet.getOwner();
                     if (
-                            pet instanceof SkeletonHorse || (pet.getOwner() != player && !(pet instanceof Wolf && ((Wolf) pet).getTarget() == player) && !play.isBanned())
+                            pet instanceof SkeletonHorse || ((player != pet.getOwner() || pp.ownerprotect) && !(pet instanceof Wolf && ((Wolf) pet).getTarget() == player) && !play.isBanned())
                             ) {
                         event.setCancelled(true);
                         event.setDamage(0);
-                        SendMessage(pet, player);
+                        SendMessage(pet, player, pet.getOwner() == player);
                     }
                 }
             }
@@ -108,7 +111,7 @@ public class EventListener implements Listener {
             if (pet.isTamed()) {
                 if (!Objects.equals(pet.getOwner(), player) && pet.getOwner() != null && !player.hasPermission("petprotect.ride") && !player.isBanned()) {
                     event.setCancelled(true);
-                    SendMessage(pet,player);
+                    SendMessage(pet,player, false);
                 }
             }
             if (pet instanceof SkeletonHorse) {
@@ -128,7 +131,7 @@ public class EventListener implements Listener {
                 if (pet instanceof SkeletonHorse) {
                     Bukkit.getConsoleSender().sendMessage("Skeleton Horse (" + pet.getUniqueId().toString() + ") at " + pet.getLocation().getX() + ", " + pet.getLocation().getY() + ", " + pet.getLocation().getZ() + " was accessed by " + player.getName());
                 } else if (pet.isTamed() && event.getPlayer() != pet.getOwner() && !event.getPlayer().hasPermission("petprotect.access") && !player.isBanned()) {
-                    SendMessage(pet,(Player)event.getPlayer());
+                    SendMessage(pet,(Player)event.getPlayer(), false);
                     event.setCancelled(true);
                 }
             }
@@ -142,7 +145,7 @@ public class EventListener implements Listener {
             Tameable pet = (Tameable) event.getRightClicked();
             Player player = event.getPlayer();
             if (pet.isTamed() && pet.getOwner() != player && !player.hasPermission("petprotect.access")) {
-                SendMessage(pet,player);
+                SendMessage(pet,player, false);
                 event.setCancelled(true);
             }
         }
@@ -155,22 +158,17 @@ public class EventListener implements Listener {
             Tameable pet = (Tameable) event.getEntity();
             Player player = event.getPlayer();
             if (pet.isTamed() && pet.getOwner() != player && !player.hasPermission("petprotect.access") && !player.isBanned()) {
-                SendMessage(pet,player);
+                SendMessage(pet,player, false);
                 event.setCancelled(true);
             }
         }
     }
 
     @EventHandler
-    public void onEntityDamageEvent(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Tameable && pp.offlineprotect) {
-            Tameable pet = (Tameable)event.getEntity();
-            if (!(pet instanceof SkeletonHorse) && pet.isTamed() && pet.getOwner() != null) {
-                if (pet.getOwner() instanceof OfflinePlayer) {
-                    OfflinePlayer offplayer = (OfflinePlayer) pet.getOwner();
-                    if (!offplayer.isOnline() && !offplayer.isBanned()) event.setCancelled(true);
-                }
-            }
+    public void onEntityDamageByBlockEvent (EntityDamageByBlockEvent event) {
+        if (pp.petinvulnerable && event.getEntity() instanceof Tameable) {
+            Tameable pet = (Tameable) event.getEntity();
+            if (pet.isTamed()) event.setCancelled(true);
         }
     }
 }
