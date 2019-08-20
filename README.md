@@ -10,11 +10,10 @@ cd PetProtect
 mvn install
 ```
 
-The compiled jar is available in the target folder.
+The compiled jar is available in the target or builds folder.
 
 ## Permissions
 PetProtect uses 3 permissions to control certain actions.
-
 
 `petprotect.hurt` controls hitting another pet. Setting to true will allow the user to hurt any pet.
 
@@ -26,23 +25,29 @@ PetProtect uses 3 permissions to control certain actions.
 A configurable file is available in the PetProtect directory in the plugins folder.
 
 
-`enabled` - On/Off switch for the plugin.
-
-`actionbar` - Whether to use Actionbar text over chat messages.
+`enabled` - This completely disables the plugin on startup if set to false
 
 ### Protection
 
-`hurt` - Protect against hurt attempts.
+`pet-invulnerable` - Make pets invulnerable to the environment (blocks)
 
-`ride` - Protect against ride attempts.
+`owner-protect` - Prevent owners from hitting their pets
 
-`access` - Protect against access attempts.
+`hurt` - Protect against hurt
+
+`ride` - Protect against riding
+
+`access` - Protect against leads and inventory access
+
+`exclude` - Not yet implemented (0.3.x will do nothing with it)
 
 ### Messages
 Tags are {pet} and {owner}. Color codes are supported.
 
-`message` - Message to send on any interaction.
+`messagetype` - Type of message (0 = none, 1 = chat, 2 = actionbar)
 
-`altmessage` - Message to send on any interaction if the owner is not found. Using '{owner}' could cause a NullPointerException.
+`message` - Message shown to player if interacting with pet that is not theirs
 
-`customname` - Whether to allow pet custom names in message or use the entity name.
+`altmessage` - Message shown to player if interacting with pet that has no owner or if the player is the owner
+
+`customname` - Whether to use custom names from pets for messages
