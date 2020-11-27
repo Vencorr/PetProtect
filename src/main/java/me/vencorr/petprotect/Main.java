@@ -1,12 +1,9 @@
 package me.vencorr.petprotect;
 
-import me.vencorr.petprotect.util.ActionBar;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
-
 
 public final class Main extends JavaPlugin {
 
@@ -22,13 +19,11 @@ public final class Main extends JavaPlugin {
     String message;
     String altmessage;
     boolean customname;
+    boolean alwaysfalse = true;
 
     @Override
     public void onEnable()
     {
-        ActionBar.plugin = this;
-        ActionBar.nmsver = Bukkit.getServer().getClass().getPackage().getName();
-        ActionBar.nmsver = ActionBar.nmsver.substring(ActionBar.nmsver.lastIndexOf(".") + 1);
         this.saveDefaultConfig();
         config.options().copyDefaults(true);
         saveConfig();

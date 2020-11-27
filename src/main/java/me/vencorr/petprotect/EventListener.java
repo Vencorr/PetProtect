@@ -1,6 +1,7 @@
 package me.vencorr.petprotect;
 
-import me.vencorr.petprotect.util.ActionBar;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -9,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
@@ -49,7 +49,7 @@ public class EventListener implements Listener {
                 msg = ChatColor.translateAlternateColorCodes('&', pp.altmessage.replace("{pet}", petName));
             }
             if (pp.msgtype == 2) {
-                ActionBar.sendActionBar(player, msg);
+                player.spigot().sendMessage( ChatMessageType.ACTION_BAR, new TextComponent(msg));
             } else {
                 player.sendMessage(msg);
             }

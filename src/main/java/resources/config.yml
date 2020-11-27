@@ -27,7 +27,6 @@ exclude: []
 # ========
 # {pet} = Pet name / {owner} = Owner username
 # messagetype - Type of message (0 = none, 1 = chat, 2 = actionbar)
-# actionbar - Whether to use actionbar for messages. Disabling this sends messages through chat
 # message - Message shown to player if interacting with pet that is not theirs
 # altmessage - Message shown to player if interacting with pet that has no owner or if the player is the owner
 # customname - Whether to use custom names from pets for messages
